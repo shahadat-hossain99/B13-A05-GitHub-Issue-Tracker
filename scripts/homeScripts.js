@@ -3,8 +3,18 @@ console.log("This is Home Page");
 
 let allIssues = [];
 
+const loadingSpinner = document.getElementById("loadingSpinner");
+
+const showLoadingSpinner = () => {
+  loadingSpinner.classList.remove("hidden");
+};
+const hideLoadingSpinner = () => {
+  loadingSpinner.classList.add("hidden");
+};
+
 // all issue loader
 const loadAllIssues = async () => {
+  showLoadingSpinner();
   const res = await fetch(
     "https://phi-lab-server.vercel.app/api/v1/lab/issues",
   );
@@ -12,6 +22,7 @@ const loadAllIssues = async () => {
   console.log(data);
 
   allIssues = data.data;
+  //   issueCount.innerText = allIssues.length;
   displayAllIssues(allIssues);
 };
 
@@ -50,6 +61,9 @@ const displayAllIssues = async (allIssues) => {
     // "updatedAt": "2024-01-15T10:30:00Z"
 
     const issueCard = document.createElement("div");
+
+    issueCard.onclick = () => loadIssueModal(issue.id);
+
     issueCard.className = `card bg-base-100 shadow-md border-t-4 p-4 ${issue.status == "open" ? "border-green-500" : "border-purple-600"}`;
     issueCard.innerHTML = `
     
@@ -85,6 +99,8 @@ const displayAllIssues = async (allIssues) => {
     `;
     issueContainer.appendChild(issueCard);
   });
+
+  hideLoadingSpinner();
 };
 
 const toggleActiveBtn = () => {
@@ -98,6 +114,8 @@ const allBtn = document.getElementById("all");
 const openBtn = document.getElementById("open");
 const closeBtn = document.getElementById("close");
 
+const issueCount = document.getElementById("issueCount");
+
 issueSwitchBtns.addEventListener("click", (eve) => {
   // console.log(e.target);
   toggleActiveBtn();
@@ -105,18 +123,31 @@ issueSwitchBtns.addEventListener("click", (eve) => {
 
   if (eve.target === allBtn) {
     displayAllIssues(allIssues);
-    // issueCount.innerText = allIssues.length;
+    issueCount.innerText = allIssues.length;
   } else if (eve.target === openBtn) {
     const openIssues = allIssues.filter((issue) => issue.status == "open");
+
     console.log("open", openIssues);
-    // issueCount.innerText = openIssues.length;
+
+    issueCount.innerText = openIssues.length;
+
     displayAllIssues(openIssues);
   } else if (eve.target === closeBtn) {
     const closedIssues = allIssues.filter((issue) => issue.status === "closed");
-    // issueCount.innerText = closedIssues.length;
+    issueCount.innerText = closedIssues.length;
     displayAllIssues(closedIssues);
     console.log("open", closedIssues);
   }
 });
+
+const loadIssueModal = async (id) => {
+  const res = await fetch(
+    "https://phi-lab-server.vercel.app/api/v1/lab/issue/33",
+  );
+  const data = await res.json();
+  console.log(data);
+
+  const modalInfo = data.data;
+};
 
 loadAllIssues();
