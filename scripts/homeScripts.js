@@ -1,6 +1,8 @@
 // This Js file is connected to HomePage
 console.log("This is Home Page");
 
+let allIssues = [];
+
 // all issue loader
 const loadAllIssues = async () => {
   const res = await fetch(
@@ -9,7 +11,8 @@ const loadAllIssues = async () => {
   const data = await res.json();
   console.log(data);
 
-  displayAllIssues(data.data);
+  allIssues = data.data;
+  displayAllIssues(allIssues);
 };
 
 const issueContainer = document.getElementById("issueContainer");
@@ -83,5 +86,37 @@ const displayAllIssues = async (allIssues) => {
     issueContainer.appendChild(issueCard);
   });
 };
+
+const toggleActiveBtn = () => {
+  const allToggleBtn = document.querySelectorAll(".toggleBtn");
+  allToggleBtn.forEach((btn) => btn.classList.add("btn-outline"));
+};
+
+const issueSwitchBtns = document.getElementById("issue-switch-btns");
+
+const allBtn = document.getElementById("all");
+const openBtn = document.getElementById("open");
+const closeBtn = document.getElementById("close");
+
+issueSwitchBtns.addEventListener("click", (eve) => {
+  // console.log(e.target);
+  toggleActiveBtn();
+  eve.target.classList.remove("btn-outline");
+
+  if (eve.target === allBtn) {
+    displayAllIssues(allIssues);
+    // issueCount.innerText = allIssues.length;
+  } else if (eve.target === openBtn) {
+    const openIssues = allIssues.filter((issue) => issue.status == "open");
+    console.log("open", openIssues);
+    // issueCount.innerText = openIssues.length;
+    displayAllIssues(openIssues);
+  } else if (eve.target === closeBtn) {
+    const closedIssues = allIssues.filter((issue) => issue.status === "closed");
+    // issueCount.innerText = closedIssues.length;
+    displayAllIssues(closedIssues);
+    console.log("open", closedIssues);
+  }
+});
 
 loadAllIssues();
