@@ -140,14 +140,78 @@ issueSwitchBtns.addEventListener("click", (eve) => {
   }
 });
 
+const modalTitle = document.getElementById("modalTitle");
+const modalStatus = document.getElementById("modalStatus");
+const modalBadge = document.getElementById("modalBadge");
+const modalDescription = document.getElementById("modalDescription");
+const modalAssignee = document.getElementById("modalAssignee");
+const modalPriority = document.getElementById("modalPriority");
+const modalOwned = document.getElementById("modalOwned");
+const modalDate = document.getElementById("modalDate");
+
 const loadIssueModal = async (id) => {
   const res = await fetch(
-    "https://phi-lab-server.vercel.app/api/v1/lab/issue/33",
+    `https://phi-lab-server.vercel.app/api/v1/lab/issue/${id}`,
   );
   const data = await res.json();
   console.log(data);
 
   const modalInfo = data.data;
+  //   "data": {
+  // "id": 33,
+  // "title": "Add bulk operations support",
+  // "description": "Allow users to perform bulk actions like delete, update status on multiple items at once.",
+  // "status": "open",
+  // "labels": [
+  // "enhancement"
+  // ],
+  // "priority": "low",
+  // "author": "bulk_barry",
+  // "assignee": "",
+  // "createdAt": "2024-02-02T10:00:00Z",
+  // "updatedAt": "2024-02-02T10:00:00Z"
+
+  modalTitle.innerText = modalInfo.title;
+  modalStatus.innerText = modalInfo.status;
+  modalStatus.classList.remove("badge-success", "badge-secondary");
+  modalInfo.status === "open"
+    ? modalStatus.classList.add("badge-success")
+    : modalStatus.classList.add("badge-secondary");
+
+  modalDescription.innerText = modalInfo.description;
+  modalBadge.innerHTML = `${createBadge(modalInfo.labels)}`;
+
+  modalPriority.innerText = modalInfo.priority.toUpperCase();
+  modalPriority.classList.remove("badge-error", "badge-warning", "badge-info");
+  modalInfo.priority == "high"
+    ? modalPriority.classList.add("badge-error")
+    : modalInfo.priority == "medium"
+      ? modalPriority.classList.add("badge-warning")
+      : modalPriority.classList.add("badge-info");
+
+  modalOwned.innerText = modalInfo.author;
+  modalDate.innerText = modalInfo.createdAt;
+  modalAssignee.innerText = modalInfo.assignee;
+
+  issueModal.showModal();
 };
+
+document.getElementById("search-btn").addEventListener("click", () => {
+  const input = document.getElementById("search-input");
+  const searchValue = input.value.trim().toLowerCase();
+  console.log(searchValue);
+
+  fetch("https://phi-lab-server.vercel.app/api/v1/lab/issues")
+    .then((res) => res.json())
+    .then((data) => {
+      const allIssusss = data.data;
+      console.log(allIssusss);
+      const searchedIssue = allIssusss.filter((issue) =>
+        issue.title.toLowerCase().includes(searchValue),
+      );
+      issueCount.innerText = searchedIssue.length;
+      displayAllIssues(searchedIssue);
+    });
+});
 
 loadAllIssues();
